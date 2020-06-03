@@ -8,9 +8,36 @@
 
 import SwiftUI
 
+
+
 struct ContentView: View {
+    @Environment(\.managedObjectContext) var managedObjectContext
+
+    @FetchRequest(entity: Memo.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \Memo.title, ascending: true)])
+        var memos:  FetchedResults<Memo>
+    
+    
     var body: some View {
-        Text("Hello, World!")
+        
+        VStack {
+            List(memos, id: \.self) { memo in
+                Text(memo.title ?? "Unknown")
+            }
+            
+            Button(action: {
+                let memo = Memo(context: self.managedObjectContext)
+                memo.title = "Dawn"
+                memo.content = "Hello, world!"
+                do {
+                    try self.managedObjectContext.save()
+                } catch {
+                    // handle the Core Data error
+                }
+            }) {
+                Text("Insert example memo")
+            }
+        }
     }
 }
 
